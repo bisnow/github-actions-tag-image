@@ -32,7 +32,7 @@ To use this action in your workflow, follow these steps:
 ```yaml
 steps:
   - name: Tag Docker Image   
-    uses: bisnow/tag-docker-image-action@main
+    uses: bisnow/tag-docker-image-action@v1
     with:
       registry: "<your-registry>"
       aws-account: "<your-aws-account-id>"
@@ -63,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Tag Docker Image
-        uses: bisnow/tag-docker-image-action@main
+        uses: bisnow/tag-docker-image-action@v1
         with:
           registry: "your-registry"
           aws-account: "your-aws-account-id"
