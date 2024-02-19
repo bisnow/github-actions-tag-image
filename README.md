@@ -29,7 +29,7 @@ Usage
 
 To use this action in your workflow, follow these steps:
 
-`
+```yaml
 steps:
   - name: Tag Docker Image   
     uses: bisnow/tag-docker-image-action@main
@@ -42,7 +42,7 @@ steps:
       dst-aws-account: "<your-destination-aws-account>"
       region: "<aws-region>"
       tag: "<your-tag>"
-`
+```
 
 Replace `<your-registry>`, `<your-aws-account-id>`, `<your-git-sha>`, `<your-destination-registry>`, `<your-destination-aws-account>`, `<aws-region>`, and `<your-tag>` with your specific details.
 
@@ -51,7 +51,7 @@ Example Workflow
 
 Here's an example of how to incorporate this action into a GitHub Actions workflow:
 
-`
+```yaml
 name: Example Workflow for Docker Tagging
 on:
   push:
@@ -71,4 +71,4 @@ jobs:
           dst-registry: "your-destination-registry"
           dst-aws-account: "your-destination-aws-account"
           tag: "latest"
-`
+```
