@@ -29,17 +29,46 @@ Usage
 
 To use this action in your workflow, follow these steps:
 
-yamlCopy code
+`
+steps:
+  - name: Tag Docker Image   
+    uses: bisnow/tag-docker-image-action@main
+    with:
+      registry: "<your-registry>"
+      aws-account: "<your-aws-account-id>"
+      sha: "<your-git-sha>"
+      # Optional inputs below
+      dst-registry: "<your-destination-registry>"
+      dst-aws-account: "<your-destination-aws-account>"
+      region: "<aws-region>"
+      tag: "<your-tag>"
+`
 
-`steps: - name: Tag Docker Image   uses: <your-github-username>/tag-docker-image-action@main   with:     registry: "<your-registry>"     aws-account: "<your-aws-account-id>"     sha: "<your-git-sha>"     # Optional inputs below     dst-registry: "<your-destination-registry>"     dst-aws-account: "<your-destination-aws-account>"     region: "<aws-region>"     tag: "<your-tag>"`
-
-Replace `<your-github-username>`, `<your-registry>`, `<your-aws-account-id>`, `<your-git-sha>`, `<your-destination-registry>`, `<your-destination-aws-account>`, `<aws-region>`, and `<your-tag>` with your specific details.
+Replace `<your-registry>`, `<your-aws-account-id>`, `<your-git-sha>`, `<your-destination-registry>`, `<your-destination-aws-account>`, `<aws-region>`, and `<your-tag>` with your specific details.
 
 Example Workflow
 ----------------
 
 Here's an example of how to incorporate this action into a GitHub Actions workflow:
 
-yamlCopy code
-
-`name: Example Workflow for Docker Tagging  on:   push:     branches:       - main  jobs:   tag-and-push:     runs-on: ubuntu-latest     steps:     - uses: actions/checkout@v2     - name: Tag Docker Image       uses: <your-github-username>/tag-docker-image-action@main       with:         registry: "your-registry"         aws-account: "your-aws-account-id"         sha: "${{ github.sha }}"         dst-registry: "your-destination-registry"         dst-aws-account: "your-destination-aws-account"         tag: "latest"`
+`
+name: Example Workflow for Docker Tagging
+on:
+  push:
+    branches:
+      - main
+jobs:
+  tag-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag Docker Image
+        uses: bisnow/tag-docker-image-action@main
+        with:
+          registry: "your-registry"
+          aws-account: "your-aws-account-id"
+          sha: "${{ github.sha }}"
+          dst-registry: "your-destination-registry"
+          dst-aws-account: "your-destination-aws-account"
+          tag: "latest"
+`
