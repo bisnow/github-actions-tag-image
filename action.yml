@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v4
     - name: Assume CD/CI role for AWS account
       uses: bisnow/github-actions-assume-role-for-environment@main
       with:
