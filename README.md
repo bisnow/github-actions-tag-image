@@ -61,7 +61,7 @@ jobs:
   tag-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Tag Docker Image
         uses: bisnow/tag-docker-image-action@v1
         with:
