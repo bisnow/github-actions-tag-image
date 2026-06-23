@@ -49,8 +49,6 @@ runs:
     - name: Log into Destination ECR if needed
       if: ${{ inputs.dst-registry }}
       uses: aws-actions/amazon-ecr-login@v2
-      with:
-        registry: ${{ inputs.dst-registry }}
     - name: Tag destination image with git sha if destination account is set
       if: ${{ inputs.dst-aws-account }}
       shell: bash
