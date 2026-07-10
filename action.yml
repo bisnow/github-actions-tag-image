@@ -38,7 +38,7 @@ runs:
     # --- ECR authentication (default path; skipped when tagging in Harbor) ---
     - name: Assume CD/CI role for AWS account
       if: ${{ inputs.only-harbor != 'true' }}
-      uses: bisnow/github-actions-assume-role-for-environment@main
+      uses: bisnow/github-actions-assume-role-for-environment@v2
       with:
         aws-account: ${{ inputs.aws-account }}
     - name: Login to Amazon ECR
@@ -70,7 +70,7 @@ runs:
     # --- Destination ECR handling (ECR only) ---
     - name: Assume CD/CI role for destination AWS account
       if: ${{ inputs.dst-aws-account && inputs.only-harbor != 'true' }}
-      uses: bisnow/github-actions-assume-role-for-environment@main
+      uses: bisnow/github-actions-assume-role-for-environment@v2
       with:
         aws-account: ${{ inputs.dst-aws-account }}
     - name: Log into Destination ECR if needed
