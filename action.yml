@@ -1,17 +1,17 @@
 ---
 name: Tag docker image with input
-description: Action to tag an image in a Docker registry with a given tag
+description: Action to tag an image in a Docker registry (ECR or Harbor) with a given tag
 
 inputs:
-  registry: 
+  registry:
     description: 'The registry to tag the image in'
     required: true
-  dst-registry: 
+  dst-registry:
     description: 'The registry to copy the image to from the registry input'
     required: false
   aws-account:
-    description: 'The AWS account to assume role for'
-    required: true
+    description: 'The AWS account to assume role for (ECR only)'
+    required: false
   dst-aws-account:
     description: 'The Destination AWS account (use if different from source account)'
     required: false
@@ -24,30 +24,57 @@ inputs:
   sha:
     description: 'The git sha to tag the image with'
     required: true
+  only-harbor:
+    description: 'Set to "true" to tag in Harbor (harbor.bisnow.cloud). Skips AWS/ECR auth and logs into Harbor with the runner robot credential.'
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
   steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
+
+    # --- ECR authentication (default path; skipped when tagging in Harbor) ---
     - name: Assume CD/CI role for AWS account
+      if: ${{ inputs.only-harbor != 'true' }}
       uses: bisnow/github-actions-assume-role-for-environment@main
       with:
         aws-account: ${{ inputs.aws-account }}
     - name: Login to Amazon ECR
+      if: ${{ inputs.only-harbor != 'true' }}
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
+
+    # --- Harbor authentication ---
+    # buildx imagetools uses the docker CLI credential store; the runner is
+    # provisioned with the harbor.bisnow.cloud robot credential in
+    # ~/.docker/config.json, but a docker-container buildx builder does not pick
+    # it up until an explicit `docker login` is performed. Re-login so imagetools
+    # can push tags to Harbor. (Mirrors github-actions-multi-arch-manifest.)
+    - name: Re-login to Harbor
+      if: ${{ inputs.only-harbor == 'true' }}
+      shell: bash
+      run: |
+        HARBOR_AUTH=$(jq -r '.auths["harbor.bisnow.cloud"].auth' "$HOME/.docker/config.json" | base64 -d)
+        HARBOR_USER="${HARBOR_AUTH%%:*}"
+        HARBOR_PASS="${HARBOR_AUTH#*:}"
+        echo "::add-mask::${HARBOR_PASS}"
+        echo "$HARBOR_PASS" | docker login harbor.bisnow.cloud -u "$HARBOR_USER" --password-stdin
+
     - name: Pull docker image
       shell: bash
       run: |
         docker pull --platform=linux/arm64 ${{ inputs.registry }}:${{ inputs.sha }}
+
+    # --- Destination ECR handling (ECR only) ---
     - name: Assume CD/CI role for destination AWS account
-      if: ${{ inputs.dst-aws-account }}
+      if: ${{ inputs.dst-aws-account && inputs.only-harbor != 'true' }}
       uses: bisnow/github-actions-assume-role-for-environment@main
       with:
         aws-account: ${{ inputs.dst-aws-account }}
     - name: Log into Destination ECR if needed
-      if: ${{ inputs.dst-registry }}
+      if: ${{ inputs.dst-registry && inputs.only-harbor != 'true' }}
       uses: aws-actions/amazon-ecr-login@v2
       with:
         registry: ${{ inputs.dst-registry }}
